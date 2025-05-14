@@ -1,0 +1,234 @@
+import React, { useState } from "react";
+import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+} from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
+
+const products = {
+  cups: [
+    "16 oz. Flex-Frost Reusable, Unbreakable Stadium Cup",
+    "16 oz. Smooth Walled Plastic Stadium Cup",
+    "16 oz. Smooth Walled Plastic Color Changing Stadium Cup",
+    "22 oz. Smooth Walled Plastic Stadium Cup",
+    "16 oz. Soft Sided Plastic Cup (one color Imprint Only)",
+    "20 oz. Soft Sided Plastic Cup (one color Imprint Only)",
+    "1.5 oz Shot Glass",
+    "16 oz. Foam Cup (one color Imprint Only)",
+    "20 oz. Foam Cup (one color Imprint Only)",
+    "16 oz Stemless Wine Glass",
+    "12 oz. Paper Cup",
+    "16 oz. Paper Cup",
+  ],
+  banners: [
+    "2x4 ft",
+    "3x6 ft",
+    "4x8 ft",
+    "5x10 ft",
+    "6x2 ft (table)",
+    "8x8 ft Step & Repeat",
+    "8x10 ft Step & Repeat",
+    "Retractable (33\"x78\")",
+  ],
+  quantities: ["100", "200", "300", "500", "1000"],
+  bannerQuantities: Array.from({ length: 200 }, (_, i) => (i + 1).toString()),
+};
+
+export default function OrderForm() {
+  const [formData, setFormData] = useState({
+    fullName: "",
+    email: "",
+    zipCode: "",
+    dateNeeded: "",
+    cupType: "",
+    cupQuantity: "100",
+    bannerSize: "",
+    bannerQuantity: "1",
+    notes: "",
+    files: [],
+  });
+
+  const [showBannerUpsell, setShowBannerUpsell] = useState(false);
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData({ ...formData, [name]: value });
+  };
+
+  const handleFileUpload = (e) => {
+    const selectedFiles = e.target.files;
+    const validFiles = Array.from(selectedFiles).filter((file) =>
+      ["image/png", "image/jpeg"].includes(file.type)
+    );
+    setFormData({ ...formData, files: validFiles });
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    // You can replace this with an actual API call
+    console.log("Submitted Order:", formData);
+    alert("Your order has been submitted successfully!");
+  };
+
+  return (
+    <div className="max-w-2xl mx-auto p-6 bg-white text-black rounded-2xl shadow-xl space-y-6 border border-black">
+      <h1 className="text-3xl font-bold text-center text-black">AV Studio Custom Order</h1>
+
+      <form onSubmit={handleSubmit}>
+        <Card className="bg-white border border-stone-300">
+          <CardContent className="space-y-4 py-6">
+            <div>
+              <Label className="text-black">Full Name</Label>
+              <Input name="fullName" type="text" value={formData.fullName} onChange={handleInputChange} placeholder="Your full name" className="bg-white text-black border-stone-300" required />
+            </div>
+
+            <div>
+              <Label className="text-black">Email Address</Label>
+              <Input name="email" type="email" value={formData.email} onChange={handleInputChange} placeholder="you@example.com" className="bg-white text-black border-stone-300" required />
+            </div>
+
+            <div>
+              <Label className="text-black">Zip Code (for shipping)</Label>
+              <Input name="zipCode" type="text" value={formData.zipCode} onChange={handleInputChange} placeholder="e.g. 30319" className="bg-white text-black border-stone-300" required />
+            </div>
+
+            <div>
+              <Label className="text-black">Date Needed</Label>
+              <Input name="dateNeeded" type="date" value={formData.dateNeeded} onChange={handleInputChange} className="bg-white text-black border-stone-300" required />
+            </div>
+
+            <div>
+              <Label className="text-black">Cup Type</Label>
+              <Select
+                onValueChange={(value) =>
+                  setFormData({ ...formData, cupType: value, bannerSize: "" })
+                }
+                disabled={!!formData.bannerSize}
+              >
+                <SelectTrigger className="bg-white border-stone-300 text-black">
+                  <SelectValue placeholder="Choose a cup type" />
+                </SelectTrigger>
+                <SelectContent className="bg-white border-stone-300 text-black">
+                 {(products?.cups || []).map((item) => (
+  <SelectItem key={item} value={item}>
+    {item}
+  </SelectItem>
+))}
+
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div>
+              <Label className="text-black">Cup Quantity</Label>
+              <Select
+                onValueChange={(value) =>
+                  setFormData({ ...formData, cupQuantity: value })
+                }
+                disabled={!!formData.bannerSize}
+              >
+                <SelectTrigger className="bg-white border-stone-300 text-black">
+                  <SelectValue placeholder="Select quantity" />
+                </SelectTrigger>
+                <SelectContent className="bg-white border-stone-300 text-black">
+                  {products.quantities.map((q) => (
+                    <SelectItem key={q} value={q} className="hover:bg-stone-100">
+                      {q}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            {showBannerUpsell && (
+              <>
+                <div>
+                  <Label className="text-black">Banner Size</Label>
+                  <Select
+                    onValueChange={(value) =>
+                      setFormData({ ...formData, bannerSize: value })
+                    }
+                  >
+                    <SelectTrigger className="bg-white border-stone-300 text-black">
+                      <SelectValue placeholder="Choose a banner size" />
+                    </SelectTrigger>
+                    <SelectContent className="bg-white border-stone-300 text-black">
+                      {products.banners.map((size) => (
+                        <SelectItem key={size} value={size} className="hover:bg-stone-100">
+                          {size}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <Label className="text-black">Banner Quantity</Label>
+                  <Select
+                    onValueChange={(value) =>
+                      setFormData({ ...formData, bannerQuantity: value })
+                    }
+                  >
+                    <SelectTrigger className="bg-white border-stone-300 text-black">
+                      <SelectValue placeholder="Select banner quantity" />
+                    </SelectTrigger>
+                    <SelectContent className="bg-white border-stone-300 text-black max-h-48 overflow-y-scroll">
+                      {products.bannerQuantities.map((q) => (
+                        <SelectItem key={q} value={q} className="hover:bg-stone-100">
+                          {q}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </>
+            )}
+
+            {!showBannerUpsell && !formData.bannerSize && (
+              <Button
+                type="button"
+                variant="outline"
+                className="border-black text-black w-full"
+                onClick={() => setShowBannerUpsell(true)}
+              >
+                Add Banner to Order
+              </Button>
+            )}
+
+            <div>
+              <Label className="text-black">Upload Artwork (PNG or JPEG)</Label>
+              <Input
+                type="file"
+                accept="image/png, image/jpeg"
+                multiple
+                onChange={handleFileUpload}
+                className="bg-white text-black border-stone-300"
+              />
+            </div>
+
+            <div>
+              <Label className="text-black">Additional Notes</Label>
+              <Textarea
+                name="notes"
+                value={formData.notes}
+                onChange={handleInputChange}
+                placeholder="Let us know if you have special requests"
+                className="bg-white text-black border-stone-300"
+              />
+            </div>
+
+            <Button type="submit" className="bg-black hover:bg-stone-900 text-white font-semibold w-full">
+              Submit Order
+            </Button>
+          </CardContent>
+        </Card>
+      </form>
+    </div>
+  );
+}
